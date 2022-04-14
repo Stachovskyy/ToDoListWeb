@@ -1,6 +1,20 @@
-var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
+using Microsoft.EntityFrameworkCore;
+using System.Reflection;
+using ToDoListWeb.Data;
 
-app.MapGet("/", () => "Hello World!");
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+
+var dbConnectionString = builder.Configuration.GetConnectionString("DataBaseConnectionString");                //db=database
+
+builder.Services.AddDbContext<TaskContext>(options => options.UseSqlServer(dbConnectionString));   //rejestracja dbcontextu
+
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());  //Mapper
+
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();    //
+
+//app.MapGet("/", () => "Hello World!"); 
+var app = builder.Build();
 
 app.Run();
