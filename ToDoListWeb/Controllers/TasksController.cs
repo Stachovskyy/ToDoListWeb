@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -24,17 +25,28 @@ namespace ToDoListWeb.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<WorkTaskModel>>> GetAllTasks()
+        public async Task<ActionResult<List<WorkTaskResponse>>> GetAllTasks()
         {
-            var tasks = await _taskRepository.GetAll();
-            var tasksModel = _mapper.Map<List<WorkTaskModel>>(tasks);
+            var tasks = await _taskRepository.GetAllAsync();
+            var tasksModel = _mapper.Map<List<WorkTaskResponse>>(tasks);
             return tasksModel;
         }
 
-        [HttpPost]
-        public async Task<ActionResult<WorkTaskModel>> AddTask()
+        [HttpGet("{Id:int}")]
+        public async Task<ActionResult<WorkTaskResponse>> GetSingleTask(int Id)
         {
+            var task = await _taskRepository.GetSingleAsync(Id);
+            if (task == null) return NotFound("Could not found Task");
+            return _mapper.Map<WorkTaskResponse>(task);
+        }
 
+        [HttpPost]
+        public async Task<ActionResult<WorkTaskResponse>> AddTask(WorkTaskCreateModel model)
+        {
+            var task = _mapper.Map<WorkTask>(model);
+            var createdTask = await _taskRepository.AddAsync(task);
+            var taskmodel = _mapper.Map<WorkTaskResponse>(createdTask);
+            return StatusCode((int)HttpStatusCode.Created,taskmodel);
         }
 
 

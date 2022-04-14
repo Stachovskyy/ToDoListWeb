@@ -8,6 +8,8 @@ namespace ToDoListWeb.Data
 {
     public interface ITaskRepository
     {
-        Task<List<WorkTask>> GetAll();
+        Task<List<WorkTask>> GetAllAsync();
+        Task<WorkTask> AddAsync(WorkTask workTask);
+        Task<WorkTask> GetSingleAsync(int Id);
     }
 }

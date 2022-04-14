@@ -10,6 +10,6 @@ namespace ToDoListWeb.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public List<WorkTaskModel> List { get; set; }
+        public List<WorkTaskResponse> List { get; set; }
     }
 }
