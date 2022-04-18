@@ -12,7 +12,7 @@ using ToDoListWeb.Models;
 namespace ToDoListWeb.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]")]   
     public class TasksController : ControllerBase
     {
         private readonly ITaskRepository _taskRepository;
@@ -24,7 +24,7 @@ namespace ToDoListWeb.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
+        [HttpGet]                 //CZY TO NIE POWINNO BYC api/TaskBoard ?? 
         public async Task<ActionResult<List<WorkTaskResponse>>> GetAllTasks()
         {
             var tasks = await _taskRepository.GetAllAsync();
@@ -46,9 +46,28 @@ namespace ToDoListWeb.Controllers
             var task = _mapper.Map<WorkTask>(model);
             var createdTask = await _taskRepository.AddAsync(task);
             var taskmodel = _mapper.Map<WorkTaskResponse>(createdTask);
-            return StatusCode((int)HttpStatusCode.Created,taskmodel);
+            return StatusCode((int)HttpStatusCode.Created, taskmodel);            //Dla 
+        }
+
+        [HttpPut("{Id:int}")]           // Co to powinno byc mozliwe zmiana statusu ?? nazwy czy jak ?
+
+        public async Task<ActionResult<WorkTaskResponse>> Put(int Id,WorkTaskCreateModel model)
+        {
+            var oldTask = await _taskRepository.GetSingleAsync(Id);
+            var updatedTask = _mapper.Map(model, oldTask);
+            var returnedTask = _mapper.Map<WorkTaskResponse>(updatedTask);               //zwracam bez id statusu i sizu
+
+            return returnedTask;
         }
 
 
+        [HttpDelete("{Id:int}")]
+
+        public async Task<IActionResult> Delete(int Id)
+        {
+            var taskToDelete = await _taskRepository.GetSingleAsync(Id);
+            _taskRepository.Delete(taskToDelete);
+            return Ok();
+        }
     }
 }

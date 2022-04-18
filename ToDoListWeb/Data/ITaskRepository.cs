@@ -11,5 +11,6 @@ namespace ToDoListWeb.Data
         Task<List<WorkTask>> GetAllAsync();
         Task<WorkTask> AddAsync(WorkTask workTask);
         Task<WorkTask> GetSingleAsync(int Id);
+        void Delete(WorkTask workTask);
     }
 }

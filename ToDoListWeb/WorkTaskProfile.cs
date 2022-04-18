@@ -15,9 +15,14 @@ namespace ToDoListWeb
         {
             CreateMap<WorkTask, WorkTaskResponse>()
             .ReverseMap();
-            CreateMap<WorkTaskCreateModel, WorkTask>();
+
+            CreateMap<WorkTaskCreateModel, WorkTask>()
+            .ForMember(m => m.Id, opt => opt.Ignore());
+
             CreateMap<Size, SizeModel>();
+
             CreateMap<Status, StatusModel>();
+
             CreateMap<TaskBoard, TaskBoardModel>();
         }
     }

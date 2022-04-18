@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ToDoListWeb.Data
 {
-    public class WorkTask
+    public class WorkTask        //zapytac czemu mam TaskBoardId  bazie danych
     {
         public int Id { get; set; }
         public string Name { get; set; }

@@ -35,5 +35,11 @@ namespace ToDoListWeb.Data
 
             return task;
         }
+
+        public void Delete(WorkTask entity)       //czy to tez powinno byc async ?
+        {
+            _context.Remove(entity);
+            _context.SaveChanges();
+        }
     }
 }

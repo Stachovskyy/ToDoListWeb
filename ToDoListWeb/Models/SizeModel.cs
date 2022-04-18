@@ -8,7 +8,7 @@ namespace ToDoListWeb.Models
 {
     public class SizeModel
     {
-        public int Id { get; set; }
+        //public int Id { get; set; }
         public string Name { get; set; }
        
     }
