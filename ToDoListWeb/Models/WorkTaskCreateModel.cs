@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace ToDoListWeb.Models
 {
     public class WorkTaskCreateModel
     {
-        public int Id { get; set; }
+        [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public DateTime? FinishDateTime { get; set; }
         public DateTime? StartDateTime { get; set; }
-        public int SizeId { get; set; }
-        public int StatusId { get; set; }
+        public int? StatusId { get; set; }
+        [Required(ErrorMessage = "PriorityId is required")]
+        public int PriorityId { get; set; }
+
+        public int TaskBoardId { get; set; }
     }
 }
+

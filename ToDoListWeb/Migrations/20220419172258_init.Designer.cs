@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ToDoListWeb.Data;
 
@@ -11,9 +12,10 @@ using ToDoListWeb.Data;
 namespace ToDoListWeb.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20220419172258_init")]
+    partial class init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,15 +45,23 @@ namespace ToDoListWeb.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Priorities");
+                });
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedDateTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Name = "Important"
-                        });
+            modelBuilder.Entity("ToDoListWeb.Data.Size", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Sizes");
                 });
 
             modelBuilder.Entity("ToDoListWeb.Data.Status", b =>
@@ -69,23 +79,6 @@ namespace ToDoListWeb.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Statuses");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Big"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Medium"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Small"
-                        });
                 });
 
             modelBuilder.Entity("ToDoListWeb.Data.TaskBoard", b =>
@@ -109,15 +102,6 @@ namespace ToDoListWeb.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("TaskBoards");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedDateTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Name = "Moj taskboard"
-                        });
                 });
 
             modelBuilder.Entity("ToDoListWeb.Data.WorkTask", b =>
@@ -146,7 +130,9 @@ namespace ToDoListWeb.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("PriorityId")
-                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<int>("SizeId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("StartDateTime")
@@ -162,6 +148,8 @@ namespace ToDoListWeb.Migrations
 
                     b.HasIndex("PriorityId");
 
+                    b.HasIndex("SizeId");
+
                     b.HasIndex("StatusId");
 
                     b.HasIndex("TaskBoardId");
@@ -173,7 +161,11 @@ namespace ToDoListWeb.Migrations
                 {
                     b.HasOne("ToDoListWeb.Data.Priority", "Priority")
                         .WithMany("Tasks")
-                        .HasForeignKey("PriorityId")
+                        .HasForeignKey("PriorityId");
+
+                    b.HasOne("ToDoListWeb.Data.Size", "Size")
+                        .WithMany("Tasks")
+                        .HasForeignKey("SizeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -191,10 +183,17 @@ namespace ToDoListWeb.Migrations
 
                     b.Navigation("Priority");
 
+                    b.Navigation("Size");
+
                     b.Navigation("Status");
                 });
 
             modelBuilder.Entity("ToDoListWeb.Data.Priority", b =>
+                {
+                    b.Navigation("Tasks");
+                });
+
+            modelBuilder.Entity("ToDoListWeb.Data.Size", b =>
                 {
                     b.Navigation("Tasks");
                 });

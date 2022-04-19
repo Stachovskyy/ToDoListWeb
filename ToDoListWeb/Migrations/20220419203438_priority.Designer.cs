@@ -12,8 +12,8 @@ using ToDoListWeb.Data;
 namespace ToDoListWeb.Migrations
 {
     [DbContext(typeof(MainContext))]
-    [Migration("20220414202948_propertychanges")]
-    partial class propertychanges
+    [Migration("20220419203438_priority")]
+    partial class priority
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,7 +24,7 @@ namespace ToDoListWeb.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("ToDoListWeb.Data.Size", b =>
+            modelBuilder.Entity("ToDoListWeb.Data.Priority", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -32,13 +32,28 @@ namespace ToDoListWeb.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<DateTime>("CreatedDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sizes");
+                    b.ToTable("Priorities");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedDateTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsDeleted = false,
+                            Name = "Important"
+                        });
                 });
 
             modelBuilder.Entity("ToDoListWeb.Data.Status", b =>
@@ -56,6 +71,23 @@ namespace ToDoListWeb.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Statuses");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Big"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Medium"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Small"
+                        });
                 });
 
             modelBuilder.Entity("ToDoListWeb.Data.TaskBoard", b =>
@@ -66,6 +98,12 @@ namespace ToDoListWeb.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<DateTime>("CreatedDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -73,6 +111,15 @@ namespace ToDoListWeb.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("TaskBoards");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedDateTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsDeleted = false,
+                            Name = "Moj taskboard"
+                        });
                 });
 
             modelBuilder.Entity("ToDoListWeb.Data.WorkTask", b =>
@@ -83,6 +130,9 @@ namespace ToDoListWeb.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<DateTime>("CreatedDateTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -90,11 +140,15 @@ namespace ToDoListWeb.Migrations
                     b.Property<DateTime?>("FinishDateTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SizeId")
+                    b.Property<int?>("PriorityId")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("StartDateTime")
@@ -103,12 +157,12 @@ namespace ToDoListWeb.Migrations
                     b.Property<int>("StatusId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TaskBoardId")
+                    b.Property<int>("TaskBoardId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SizeId");
+                    b.HasIndex("PriorityId");
 
                     b.HasIndex("StatusId");
 
@@ -119,9 +173,9 @@ namespace ToDoListWeb.Migrations
 
             modelBuilder.Entity("ToDoListWeb.Data.WorkTask", b =>
                 {
-                    b.HasOne("ToDoListWeb.Data.Size", "Size")
+                    b.HasOne("ToDoListWeb.Data.Priority", "Priority")
                         .WithMany("Tasks")
-                        .HasForeignKey("SizeId")
+                        .HasForeignKey("PriorityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -133,14 +187,16 @@ namespace ToDoListWeb.Migrations
 
                     b.HasOne("ToDoListWeb.Data.TaskBoard", null)
                         .WithMany("List")
-                        .HasForeignKey("TaskBoardId");
+                        .HasForeignKey("TaskBoardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Size");
+                    b.Navigation("Priority");
 
                     b.Navigation("Status");
                 });
 
-            modelBuilder.Entity("ToDoListWeb.Data.Size", b =>
+            modelBuilder.Entity("ToDoListWeb.Data.Priority", b =>
                 {
                     b.Navigation("Tasks");
                 });

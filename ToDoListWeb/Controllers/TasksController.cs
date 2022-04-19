@@ -1,73 +1,100 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Net;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using ToDoListWeb.Data;
+using ToDoListWeb.Exceptions;
 using ToDoListWeb.Models;
 
 namespace ToDoListWeb.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]   
+    [Route("api/TaskBoards/{taskBoardId}/[controller]")]
     public class TasksController : ControllerBase
     {
         private readonly ITaskRepository _taskRepository;
         private readonly IMapper _mapper;
+        private readonly ITaskBoardRepository _taskBoardRepository;
 
-        public TasksController(ITaskRepository taskRepository, IMapper mapper)
+        public TasksController(ITaskRepository taskRepository, IMapper mapper, ITaskBoardRepository taskBoardRepository)
         {
             _taskRepository = taskRepository;
             _mapper = mapper;
+            _taskBoardRepository = taskBoardRepository;
         }
 
-        [HttpGet]                 //CZY TO NIE POWINNO BYC api/TaskBoard ?? 
-        public async Task<ActionResult<List<WorkTaskResponse>>> GetAllTasks()
+        [HttpGet]
+        public async Task<ActionResult<List<WorkTaskResponse>>> GetTasks(
+            int taskBoardId,
+            [FromQuery] int? statusId = null,
+            [FromQuery] int? priorityId = null)
         {
-            var tasks = await _taskRepository.GetAllAsync();
-            var tasksModel = _mapper.Map<List<WorkTaskResponse>>(tasks);
-            return tasksModel;
+            await ValidateTaskBoard(taskBoardId);
+
+            var listOfTasks = await _taskRepository.GetTasks(statusId, priorityId);
+
+            if (!listOfTasks.Any())
+                throw new NotFoundException("Could not find any tasks in this particualr taskboard");
+
+            return _mapper.Map<List<WorkTaskResponse>>(listOfTasks);
         }
 
-        [HttpGet("{Id:int}")]
-        public async Task<ActionResult<WorkTaskResponse>> GetSingleTask(int Id)
+        [HttpGet("{taskId:int}")]
+        public async Task<ActionResult<WorkTaskResponse>> GetSingleTask(int taskBoardId, int taskId)
         {
-            var task = await _taskRepository.GetSingleAsync(Id);
-            if (task == null) return NotFound("Could not found Task");
+            await ValidateTaskBoard(taskBoardId);
+
+            var task = await _taskRepository.GetSingleAsync(taskId);
+
+            if (task == null)
+                throw new NotFoundException("Could not found Task");
+
+            if (task.TaskBoardId != taskBoardId)
+                throw new NotFoundException("Could not found Task");
+
             return _mapper.Map<WorkTaskResponse>(task);
         }
 
         [HttpPost]
-        public async Task<ActionResult<WorkTaskResponse>> AddTask(WorkTaskCreateModel model)
+        public async Task<ActionResult<WorkTaskResponse>> AddTask([FromBody] WorkTaskCreateModel model, [System.Web.Http.FromUri] int taskBoardId)   //Tutaj bez id TaskBoarda / bo mam go w urlu
         {
+            await ValidateTaskBoard(taskBoardId);
+
             var task = _mapper.Map<WorkTask>(model);
+
             var createdTask = await _taskRepository.AddAsync(task);
+
             var taskmodel = _mapper.Map<WorkTaskResponse>(createdTask);
-            return StatusCode((int)HttpStatusCode.Created, taskmodel);            //Dla 
+
+            return StatusCode((int)HttpStatusCode.Created, taskmodel);
         }
-
-        [HttpPut("{Id:int}")]           // Co to powinno byc mozliwe zmiana statusu ?? nazwy czy jak ?
-
-        public async Task<ActionResult<WorkTaskResponse>> Put(int Id,WorkTaskCreateModel model)
+        [HttpPut("{taskId:int}")]
+        public async Task<ActionResult<WorkTaskResponse>> Put([System.Web.Http.FromUri] int taskBoardId, int taskId, WorkTaskCreateModel model) //wszystko co mozliwe do edycji
         {
-            var oldTask = await _taskRepository.GetSingleAsync(Id);
+            await ValidateTaskBoard(taskBoardId);
+
+            var oldTask = await _taskRepository.GetSingleAsync(taskId);
+
             var updatedTask = _mapper.Map(model, oldTask);
-            var returnedTask = _mapper.Map<WorkTaskResponse>(updatedTask);               //zwracam bez id statusu i sizu
+
+            var returnedTask = _mapper.Map<WorkTaskResponse>(updatedTask);  
 
             return returnedTask;
         }
-
-
         [HttpDelete("{Id:int}")]
-
-        public async Task<IActionResult> Delete(int Id)
+        public async Task<IActionResult> Delete([System.Web.Http.FromUri] int taskBoardId, int Id)  // zmienic zeby softdelete isdeleted (zmienic przy pobieraniu taskow)
         {
-            var taskToDelete = await _taskRepository.GetSingleAsync(Id);
-            _taskRepository.Delete(taskToDelete);
-            return Ok();
+            await ValidateTaskBoard(taskBoardId);
+            var task = await _taskRepository.GetSingleAsync(Id);
+            if (task == null) return NotFound("Task does not exists");
+            await _taskRepository.Delete(Id);            //czy jest mozliwe zeby task nie istnial i byl do sprawdzenia ?
+            return NoContent();
+        }
+        private async Task ValidateTaskBoard(int taskBoardId)
+        {
+            var taskBoard = await _taskBoardRepository.GetSingleTaskBoardAsync(taskBoardId);
+            if (taskBoard == null)
+                throw new NotFoundException("TaskBoard does not exists");
         }
     }
 }
+

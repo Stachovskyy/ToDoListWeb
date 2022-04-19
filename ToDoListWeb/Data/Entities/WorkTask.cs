@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+
 
 namespace ToDoListWeb.Data
 {
-    public class WorkTask        //zapytac czemu mam TaskBoardId  bazie danych
+    public class WorkTask : BaseEntity     //zapytac czemu mam TaskBoardId bazie danych ???
     {
-        public int Id { get; set; }
+        [Required]
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime? FinishDateTime { get; set; }
         public DateTime? StartDateTime { get; set; }
-        public Size Size { get; set; }
-        public int SizeId { get; set; }
         public Status Status { get; set; }
         public int StatusId { get; set; }
-
+        public Priority Priority { get; set; }
+        [Required]
+        public int? PriorityId { get; set; }
+        [Required]
+        public int TaskBoardId { get; set; }
     }
 }

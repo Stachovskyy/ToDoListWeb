@@ -1,20 +1,31 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ToDoListWeb.Data
 {
     public class MainContext : DbContext
     {
-        public DbSet<WorkTask> Tasks {get;set;}
+        public DbSet<WorkTask> Tasks { get; set; }
         public DbSet<Status> Statuses { get; set; }
-        public DbSet<Size> Sizes { get; set; }
-        public DbSet<TaskBoard> TaskBoards{ get; set; }
+        public DbSet<TaskBoard> TaskBoards { get; set; }
+        public DbSet<Priority> Priorities { get; set; }
         public MainContext(DbContextOptions<MainContext> options) : base(options)
         {
+        }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Status>()
+                .HasData(
+                        new Status { Id = 1, Name = "Big" },
+                        new Status { Id = 2, Name = "Medium" },
+                        new Status { Id = 3, Name = "Small" });
+
+            modelBuilder.Entity<Priority>()
+                .HasData(
+                        new Priority { Id = 1, Name = "Important" });
+
+            modelBuilder.Entity<TaskBoard>()
+                .HasData(
+                        new TaskBoard { Id = 1, Name = "Moj taskboard", });
         }
     }
 }

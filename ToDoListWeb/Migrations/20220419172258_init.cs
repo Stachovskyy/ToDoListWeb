@@ -10,6 +10,21 @@ namespace ToDoListWeb.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Priorities",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedDateTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Priorities", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Sizes",
                 columns: table => new
                 {
@@ -41,7 +56,9 @@ namespace ToDoListWeb.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedDateTime = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -56,15 +73,23 @@ namespace ToDoListWeb.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FinishDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    StartDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FinishDateTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    StartDateTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     SizeId = table.Column<int>(type: "int", nullable: false),
                     StatusId = table.Column<int>(type: "int", nullable: false),
-                    TaskBoardId = table.Column<int>(type: "int", nullable: true)
+                    PriorityId = table.Column<int>(type: "int", nullable: true),
+                    TaskBoardId = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedDateTime = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tasks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tasks_Priorities_PriorityId",
+                        column: x => x.PriorityId,
+                        principalTable: "Priorities",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Tasks_Sizes_SizeId",
                         column: x => x.SizeId,
@@ -81,8 +106,14 @@ namespace ToDoListWeb.Migrations
                         name: "FK_Tasks_TaskBoards_TaskBoardId",
                         column: x => x.TaskBoardId,
                         principalTable: "TaskBoards",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tasks_PriorityId",
+                table: "Tasks",
+                column: "PriorityId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tasks_SizeId",
@@ -104,6 +135,9 @@ namespace ToDoListWeb.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Tasks");
+
+            migrationBuilder.DropTable(
+                name: "Priorities");
 
             migrationBuilder.DropTable(
                 name: "Sizes");

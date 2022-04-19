@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using ToDoListWeb.Data;
 using ToDoListWeb.Models;
 
@@ -16,14 +11,14 @@ namespace ToDoListWeb
             CreateMap<WorkTask, WorkTaskResponse>()
             .ReverseMap();
 
-            CreateMap<WorkTaskCreateModel, WorkTask>()
-            .ForMember(m => m.Id, opt => opt.Ignore());
-
-            CreateMap<Size, SizeModel>();
+            CreateMap<WorkTaskCreateModel, WorkTask>();
 
             CreateMap<Status, StatusModel>();
 
             CreateMap<TaskBoard, TaskBoardModel>();
+
+            CreateMap<Priority, PriorityModel>()
+            .ReverseMap();
         }
     }
 }
