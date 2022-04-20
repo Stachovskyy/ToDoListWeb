@@ -27,7 +27,7 @@ namespace ToDoListWeb.Data
             var task = await _context.Tasks
                 .Include(c => c.Status)
                 .Include(c => c.Priority)
-                .Where(c => c.Id == Id & c.IsDeleted != true)
+                .Where(c => c.Id == Id && c.IsDeleted != true)
                 .FirstOrDefaultAsync();
 
             return task;
@@ -43,7 +43,7 @@ namespace ToDoListWeb.Data
 
         }
 
-        public async Task<List<WorkTask>> GetTasks(int? statusId, int? priorityId)
+        public async Task<List<WorkTask>> GetTasks(int? statusId, int? priorityId, int? take = null, int? skip = null)
         {
             var tasks = _context.Tasks
                 .Include(c => c.Status)
@@ -60,8 +60,24 @@ namespace ToDoListWeb.Data
                 tasks = tasks.Where(s => s.PriorityId == priorityId);
             }
 
+            tasks=tasks.OrderBy(c => c.Id);
+
+            if (skip != null)
+            {
+                tasks = tasks.Skip(skip.Value);
+            }
+            if (take != null)
+            {
+                tasks = tasks.Take(take.Value);
+            }
+
             return await tasks.ToListAsync();
 
+        }
+
+        public async Task<bool> SaveChangesAsync()
+        {
+            return (await _context.SaveChangesAsync()) > 0;
         }
     }
 }

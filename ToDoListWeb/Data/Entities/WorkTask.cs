@@ -3,7 +3,7 @@
 
 namespace ToDoListWeb.Data
 {
-    public class WorkTask : BaseEntity     //zapytac czemu mam TaskBoardId bazie danych ???
+    public class WorkTask : BaseEntity   
     {
         [Required]
         public string Name { get; set; }
@@ -14,7 +14,7 @@ namespace ToDoListWeb.Data
         public int StatusId { get; set; }
         public Priority Priority { get; set; }
         [Required]
-        public int? PriorityId { get; set; }
+        public int PriorityId { get; set; }
         [Required]
         public int TaskBoardId { get; set; }
     }

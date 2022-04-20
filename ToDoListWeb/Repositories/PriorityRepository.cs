@@ -38,19 +38,17 @@ namespace ToDoListWeb.Data
                 .SingleOrDefaultAsync();
 
             return priority;
-
         }
-        public async Task<Priority> GetPriorityByName(string Name)
+        public async Task<Priority> GetPriorityByName(string name)
         {
             var priority = await _context.Priorities
-                .Where(p => p.Name == Name)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(p=>p.Name==name);
 
             return priority;
         }
         public async Task SoftDelete(int priorityId)
         {
-            var priorityToDelete = await GetPriority(priorityId);
+            var priorityToDelete = await GetPriority(priorityId);   
 
             priorityToDelete.IsDeleted = true;
 

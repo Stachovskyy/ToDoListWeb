@@ -2,29 +2,18 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using ToDoListWeb.Data;
+using ToDoListWeb.Exceptions;
 using ToDoListWeb.Models;
 
 namespace ToDoListWeb.Controllers
 {
-    [Route("api/TaskBoards/{taskBoardId}/[controller]")]
+    [Route("api/[controller]")]            
     [ApiController]
     public class PrioritiesController : ControllerBase
     {
         private readonly IPriorityRepository _priorityRepository;
         private readonly IMapper _mapper;
-        /*       Plan  
-         * 1.Wypierdolic Size        +++?
-         * 2.Zrobic StatusyHardCode +++?
-         * 3.walidacje +-?
-         * 
-         * 3.1 Obsługa błędów +++
-         * 4.Sprzątniecie kodu 
-         * 4.1 Namespace !  ctrl+k ctrle+E
-         * 4.2 ctrl+k+d
-         * 5. Dodanie użytkowników
-         * 6.Dodac swaggera
-         * 7.Paging
-         * */
+        
 
         public PrioritiesController(IPriorityRepository priorityRepository, IMapper mapper)
         {
@@ -32,20 +21,24 @@ namespace ToDoListWeb.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
+        [HttpGet] 
         public async Task<ActionResult<List<PriorityModel>>> GetAll()
         {
             var priorities = await _priorityRepository.GetPrioritiesAsync();
+
+            if (priorities == null)
+                throw new NotFoundException("There is no priorities");
 
             var prioritiesmodel = _mapper.Map<List<PriorityModel>>(priorities);
 
             return prioritiesmodel;
         }
 
-        [HttpPost]
-        public async Task<ActionResult<PriorityModel>> CreatePriority(PriorityModel priority)
+        [HttpPost]                                    
+        public async Task<ActionResult<PriorityModel>> CreatePriority(
+            PriorityModel priority)
         {
-            var existingpriority = _priorityRepository.GetPriorityByName(priority.Name);
+            var existingpriority =await _priorityRepository.GetPriorityByName(priority.Name);
 
             if (existingpriority != null)
                 return BadRequest("Priority with that name already exists");
@@ -56,28 +49,33 @@ namespace ToDoListWeb.Controllers
 
             var returnedModel = _mapper.Map<PriorityModel>(createdPriority);
 
-                return StatusCode((int)HttpStatusCode.Created, returnedModel);
+            return StatusCode((int)HttpStatusCode.Created, returnedModel);
         }
 
         [HttpPut]
-        public async Task<ActionResult<PriorityModel>> Update(int priorityId, PriorityModel model)
+        public async Task<ActionResult<PriorityModel>> Update(
+            int priorityId,
+            PriorityModel model)
         {
 
             var oldPriority = await _priorityRepository.GetPriority(priorityId);
 
             if (oldPriority == null)
-                return NotFound("Could not find Priority");
+                throw new NotFoundException("There is no priority to update");
 
-            _mapper.Map(model, oldPriority);  //updejtuje priority
-                return _mapper.Map<PriorityModel>(oldPriority);   //spowrotem na model
+            _mapper.Map(model, oldPriority);
+            return _mapper.Map<PriorityModel>(oldPriority);
         }
 
-        [HttpDelete("priorityId:int")]       //jak to zrobic ?
+        [HttpDelete("priorityId:int")]
         public async Task<IActionResult> DeletePriority(int priorityId)
         {
+            if (_priorityRepository.GetPriority(priorityId) == null)
+                throw new NotFoundException("There is no prority to delete");
+
             await _priorityRepository.SoftDelete(priorityId);
 
-            return NoContent(); // pusty ok = nocontent
+            return NoContent();
         }
     }
 }

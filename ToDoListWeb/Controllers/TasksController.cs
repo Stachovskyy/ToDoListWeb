@@ -26,11 +26,13 @@ namespace ToDoListWeb.Controllers
         public async Task<ActionResult<List<WorkTaskResponse>>> GetTasks(
             int taskBoardId,
             [FromQuery] int? statusId = null,
-            [FromQuery] int? priorityId = null)
+            [FromQuery] int? priorityId = null,
+            [FromQuery] int? take=null,
+            [FromQuery] int? skip=null)
         {
             await ValidateTaskBoard(taskBoardId);
 
-            var listOfTasks = await _taskRepository.GetTasks(statusId, priorityId);
+            var listOfTasks = await _taskRepository.GetTasks(statusId, priorityId,take,skip);
 
             if (!listOfTasks.Any())
                 throw new NotFoundException("Could not find any tasks in this particualr taskboard");
@@ -39,7 +41,9 @@ namespace ToDoListWeb.Controllers
         }
 
         [HttpGet("{taskId:int}")]
-        public async Task<ActionResult<WorkTaskResponse>> GetSingleTask(int taskBoardId, int taskId)
+        public async Task<ActionResult<WorkTaskResponse>> GetSingleTask(
+            int taskBoardId,
+            int taskId)
         {
             await ValidateTaskBoard(taskBoardId);
 
@@ -55,7 +59,9 @@ namespace ToDoListWeb.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<WorkTaskResponse>> AddTask([FromBody] WorkTaskCreateModel model, [System.Web.Http.FromUri] int taskBoardId)   //Tutaj bez id TaskBoarda / bo mam go w urlu
+        public async Task<ActionResult<WorkTaskResponse>> AddTask(
+            [FromBody] WorkTaskCreateModel model,
+            [System.Web.Http.FromUri] int taskBoardId)   //Tutaj bez id TaskBoarda / bo mam go w urlu
         {
             await ValidateTaskBoard(taskBoardId);
 
@@ -68,30 +74,47 @@ namespace ToDoListWeb.Controllers
             return StatusCode((int)HttpStatusCode.Created, taskmodel);
         }
         [HttpPut("{taskId:int}")]
-        public async Task<ActionResult<WorkTaskResponse>> Put([System.Web.Http.FromUri] int taskBoardId, int taskId, WorkTaskCreateModel model) //wszystko co mozliwe do edycji
+        public async Task<ActionResult<WorkTaskResponse>> Put(                 //ZAPYTAC jak zapisać ten update
+            [System.Web.Http.FromUri] int taskBoardId,
+            int taskId,
+            WorkTaskCreateModel model)
         {
             await ValidateTaskBoard(taskBoardId);
 
             var oldTask = await _taskRepository.GetSingleAsync(taskId);
+            if (oldTask == null)
+                throw new NotFoundException("Could not found Task to update");
 
-            var updatedTask = _mapper.Map(model, oldTask);
+            var updatedTask = _mapper.Map(model, oldTask);      //Mapuje
 
-            var returnedTask = _mapper.Map<WorkTaskResponse>(updatedTask);  
+            await _taskRepository.SaveChangesAsync();
+
+            var returnedTask = _mapper.Map<WorkTaskResponse>(updatedTask);
 
             return returnedTask;
+
         }
         [HttpDelete("{Id:int}")]
-        public async Task<IActionResult> Delete([System.Web.Http.FromUri] int taskBoardId, int Id)  // zmienic zeby softdelete isdeleted (zmienic przy pobieraniu taskow)
+        public async Task<IActionResult> Delete(
+            [System.Web.Http.FromUri] int taskBoardId,
+            int Id)
         {
             await ValidateTaskBoard(taskBoardId);
+
             var task = await _taskRepository.GetSingleAsync(Id);
-            if (task == null) return NotFound("Task does not exists");
-            await _taskRepository.Delete(Id);            //czy jest mozliwe zeby task nie istnial i byl do sprawdzenia ?
+
+            if (task == null)
+                return NotFound("Task does not exists");
+
+            await _taskRepository.Delete(Id);
+
             return NoContent();
         }
-        private async Task ValidateTaskBoard(int taskBoardId)
+        private async Task ValidateTaskBoard(
+            int taskBoardId)
         {
             var taskBoard = await _taskBoardRepository.GetSingleTaskBoardAsync(taskBoardId);
+
             if (taskBoard == null)
                 throw new NotFoundException("TaskBoard does not exists");
         }
