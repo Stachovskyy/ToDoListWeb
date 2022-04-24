@@ -1,8 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using ToDoListWeb.Data.Entities;
+using ToDoListWeb.Entities;
 
 namespace ToDoListWeb.Data
 {
-    public class MainContext : DbContext
+    public class MainContext : IdentityDbContext<User, Role, Guid>           //Guid to Typ Id dla User i Role
     {
         public DbSet<WorkTask> Tasks { get; set; }
         public DbSet<Status> Statuses { get; set; }
@@ -13,6 +16,8 @@ namespace ToDoListWeb.Data
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);  //
+
             modelBuilder.Entity<Status>()
                 .HasData(
                         new Status { Id = 1, Name = "Big" },
@@ -26,6 +31,6 @@ namespace ToDoListWeb.Data
             modelBuilder.Entity<TaskBoard>()
                 .HasData(
                         new TaskBoard { Id = 1, Name = "Moj taskboard", });
-        }
+           }
     }
 }

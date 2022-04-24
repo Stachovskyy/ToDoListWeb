@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using ToDoListWeb.Data;
+using ToDoListWeb.Data.Entities;
+using ToDoListWeb.Entities;
 using ToDoListWeb.Models;
 
 namespace ToDoListWeb
@@ -15,10 +17,20 @@ namespace ToDoListWeb
 
             CreateMap<Status, StatusModel>();
 
-            CreateMap<TaskBoard, TaskBoardModel>();
+            CreateMap<TaskBoard, TaskBoardModel>()
+            .ReverseMap();
+
+            CreateMap<TaskBoard, TaskBoardModelWithoutList>()
+            .ReverseMap();
 
             CreateMap<Priority, PriorityModel>()
-            .ReverseMap();
+            .ReverseMap()
+            .ForMember(p => p.Id, opt => opt.Ignore());
+
+            CreateMap<UserSignUp, User>()
+            .ForMember(u => u.UserName, opt => opt.MapFrom(ur => ur.Email));
+
+            CreateMap<User, UserModel>();
         }
     }
 }

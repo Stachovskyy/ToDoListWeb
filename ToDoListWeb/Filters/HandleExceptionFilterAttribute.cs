@@ -4,7 +4,7 @@ using ToDoListWeb.Exceptions;
 
 namespace ToDoListWeb.Filters
 {
-    public class HandleExceptionFilterAttribute : ExceptionFilterAttribute  //dziedzicze zeby onexception bylo dostepne
+    public class HandleExceptionFilterAttribute : ExceptionFilterAttribute  //dziedzicze zeby onException bylo dostepne
     {
         public override void OnException(ExceptionContext context)
         {
@@ -12,6 +12,10 @@ namespace ToDoListWeb.Filters
             if (context.Exception is NotFoundException myException)
             {
                 context.Result = new ObjectResult(new { Message = myException.Message }) { StatusCode = 404 };
+            }
+            else if (context.Exception is ServerErrorException Exception)
+            {
+                context.Result = new ObjectResult(new { Message = Exception.Message }) { StatusCode = 404 };
             }
             else
             {

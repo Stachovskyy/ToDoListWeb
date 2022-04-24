@@ -2,7 +2,7 @@
 {
     public class BaseEntity
     {
-        public int Id { get; set; }  //Chyba bez tego powinno byc ??
+        public int Id { get; set; } 
         public bool IsDeleted { get; set; }
         public DateTime CreatedDateTime { get; set; }
     }

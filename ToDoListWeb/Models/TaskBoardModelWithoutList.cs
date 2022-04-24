@@ -2,8 +2,10 @@
 
 namespace ToDoListWeb.Models
 {
-    public class StatusModel
+    public class TaskBoardModelWithoutList
     {
+     
+        [Required(ErrorMessage = ("Taskboard name is required"))]
         public string Name { get; set; }
     }
 }

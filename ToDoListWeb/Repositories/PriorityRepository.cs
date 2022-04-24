@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ToDoListWeb.Data.Entities;
 
-namespace ToDoListWeb.Data
+namespace ToDoListWeb.Data.Repositories
 {
     public class PriorityRepository : IPriorityRepository
     {
@@ -33,27 +34,35 @@ namespace ToDoListWeb.Data
 
         public async Task<Priority> GetPriority(int priorityId)
         {
+
             var priority = await _context.Priorities
                 .Where(p => p.Id == priorityId)
                 .SingleOrDefaultAsync();
 
-            return priority;
+            if (priority.IsDeleted != true)
+                return priority;
+
+            return null;
         }
         public async Task<Priority> GetPriorityByName(string name)
         {
             var priority = await _context.Priorities
-                .SingleOrDefaultAsync(p=>p.Name==name);
+                .SingleOrDefaultAsync(p => p.Name == name);
 
             return priority;
         }
         public async Task SoftDelete(int priorityId)
         {
-            var priorityToDelete = await GetPriority(priorityId);   
+            var priorityToDelete = await GetPriority(priorityId);
 
             priorityToDelete.IsDeleted = true;
 
             _context.SaveChanges();
 
+        }
+        public async Task<bool> SaveChangesAsync()
+        {
+            return (await _context.SaveChangesAsync()) > 0;
         }
     }
 }

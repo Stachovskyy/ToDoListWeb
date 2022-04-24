@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 
-namespace ToDoListWeb.Data
+namespace ToDoListWeb.Data.Entities
 {
     public class WorkTask : BaseEntity   
     {

@@ -1,7 +1,9 @@
 ﻿using System.Net;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ToDoListWeb.Data;
+using ToDoListWeb.Data.Entities;
+using ToDoListWeb.Data.Repositories;
 using ToDoListWeb.Exceptions;
 using ToDoListWeb.Models;
 
@@ -22,17 +24,18 @@ namespace ToDoListWeb.Controllers
             _taskBoardRepository = taskBoardRepository;
         }
 
+        [Authorize]
         [HttpGet]
-        public async Task<ActionResult<List<WorkTaskResponse>>> GetTasks(
+        public async Task<ActionResult<List<WorkTaskResponse>>> GetTasks(           //zeby skorzystac z metody musze przekazac token
             int taskBoardId,
             [FromQuery] int? statusId = null,
             [FromQuery] int? priorityId = null,
-            [FromQuery] int? take=null,
-            [FromQuery] int? skip=null)
+            [FromQuery] int? take = null,
+            [FromQuery] int? skip = null)
         {
             await ValidateTaskBoard(taskBoardId);
 
-            var listOfTasks = await _taskRepository.GetTasks(statusId, priorityId,take,skip);
+            var listOfTasks = await _taskRepository.GetTasks(statusId, priorityId, take, skip);
 
             if (!listOfTasks.Any())
                 throw new NotFoundException("Could not find any tasks in this particualr taskboard");
@@ -40,6 +43,7 @@ namespace ToDoListWeb.Controllers
             return _mapper.Map<List<WorkTaskResponse>>(listOfTasks);
         }
 
+        [Authorize]
         [HttpGet("{taskId:int}")]
         public async Task<ActionResult<WorkTaskResponse>> GetSingleTask(
             int taskBoardId,
@@ -57,11 +61,11 @@ namespace ToDoListWeb.Controllers
 
             return _mapper.Map<WorkTaskResponse>(task);
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<WorkTaskResponse>> AddTask(
             [FromBody] WorkTaskCreateModel model,
-            [System.Web.Http.FromUri] int taskBoardId)   //Tutaj bez id TaskBoarda / bo mam go w urlu
+            [System.Web.Http.FromUri] int taskBoardId)
         {
             await ValidateTaskBoard(taskBoardId);
 
@@ -73,8 +77,9 @@ namespace ToDoListWeb.Controllers
 
             return StatusCode((int)HttpStatusCode.Created, taskmodel);
         }
+        [Authorize]
         [HttpPut("{taskId:int}")]
-        public async Task<ActionResult<WorkTaskResponse>> Put(                 //ZAPYTAC jak zapisać ten update
+        public async Task<ActionResult<WorkTaskResponse>> Put(
             [System.Web.Http.FromUri] int taskBoardId,
             int taskId,
             WorkTaskCreateModel model)
@@ -94,6 +99,7 @@ namespace ToDoListWeb.Controllers
             return returnedTask;
 
         }
+        [Authorize]
         [HttpDelete("{Id:int}")]
         public async Task<IActionResult> Delete(
             [System.Web.Http.FromUri] int taskBoardId,

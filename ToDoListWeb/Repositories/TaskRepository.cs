@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ToDoListWeb.Data.Entities;
+using ToDoListWeb.Data.Repositories;
 
 namespace ToDoListWeb.Data
 {
@@ -16,7 +18,7 @@ namespace ToDoListWeb.Data
             var createdTask = await _context.Tasks
                 .AddAsync(task);
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return createdTask.Entity;
 
@@ -39,7 +41,7 @@ namespace ToDoListWeb.Data
 
             taskToDelete.IsDeleted = true;
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
         }
 

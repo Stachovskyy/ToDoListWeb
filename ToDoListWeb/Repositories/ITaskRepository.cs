@@ -1,4 +1,6 @@
-﻿namespace ToDoListWeb.Data
+﻿using ToDoListWeb.Data.Entities;
+
+namespace ToDoListWeb.Data.Repositories
 {
     public interface ITaskRepository
     {
@@ -6,7 +8,6 @@
         Task<WorkTask> GetSingleAsync(int Id);
         Task Delete(int taskId);
         Task<List<WorkTask>> GetTasks(int? statusId, int? priorityId,int? take = null, int? skip = null);
-        /*Task<WorkTask> UpdateAsync(WorkTask model, int id);*/
         Task<bool> SaveChangesAsync();
     }
 }

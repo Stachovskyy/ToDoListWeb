@@ -1,4 +1,4 @@
-﻿namespace ToDoListWeb.Data
+﻿namespace ToDoListWeb.Data.Entities
 {
     public class Status
     {
