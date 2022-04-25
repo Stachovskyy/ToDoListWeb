@@ -1,5 +1,5 @@
 # ToDoListWeb
-This project presents an implementation of a task list used to practice and demonstrate the acquired knowledge in self-study courses on the PluralSight platform.
+This project presents an implementation of a To do list used to practice and demonstrate the acquired knowledge in self-study courses on the PluralSight platform.
 It covers the basics of building a REST API using ASP.NET core 6.0 .
 
 ## Technologies
