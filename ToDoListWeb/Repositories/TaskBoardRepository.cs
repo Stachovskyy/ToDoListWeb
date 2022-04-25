@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ToDoListWeb.Data.Entities;
 using ToDoListWeb.Entities;
 using ToDoListWeb.Exceptions;
 
