@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using ToDoListWeb.Entities;
+using ToDoListWeb.Models;
 
 namespace ToDoListWeb.Data.Entities
 {
@@ -8,6 +8,6 @@ namespace ToDoListWeb.Data.Entities
         [Required]
         public string Name { get; set; }
         public List<WorkTask>? TaskList { get; set; }
-        public List<User> UserList { get; set; } = new List<User>(); 
+        public List<User> UserList { get; set; } = new List<User>();
     }
 }

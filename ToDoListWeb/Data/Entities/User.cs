@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using ToDoListWeb.Data;
 using ToDoListWeb.Data.Entities;
 
-namespace ToDoListWeb.Entities
+namespace ToDoListWeb.Models
 {
     public class User : IdentityUser<Guid>
     {

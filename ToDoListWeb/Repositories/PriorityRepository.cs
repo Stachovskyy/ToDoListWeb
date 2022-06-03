@@ -19,9 +19,7 @@ namespace ToDoListWeb.Data.Repositories
             _context.SaveChanges();
 
             return createdpriority.Entity;
-
         }
-
         public async Task<List<Priority>> GetPrioritiesAsync()
         {
             var listOfPriorities = await _context.Priorities
@@ -29,25 +27,19 @@ namespace ToDoListWeb.Data.Repositories
                 .ToListAsync();
 
             return listOfPriorities;
-
         }
-
         public async Task<Priority> GetPriority(int priorityId)
         {
-
             var priority = await _context.Priorities
-                .Where(p => p.Id == priorityId)
+                .Where(p => p.Id == priorityId && p.IsDeleted != true)
                 .SingleOrDefaultAsync();
 
-            if (priority.IsDeleted != true)
-                return priority;
-
-            return null;
+            return priority;
         }
         public async Task<Priority> GetPriorityByName(string name)
         {
             var priority = await _context.Priorities
-                .SingleOrDefaultAsync(p => p.Name == name);
+                .SingleOrDefaultAsync(p => p.Name == name && p.IsDeleted != true);
 
             return priority;
         }
@@ -58,7 +50,6 @@ namespace ToDoListWeb.Data.Repositories
             priorityToDelete.IsDeleted = true;
 
             _context.SaveChanges();
-
         }
         public async Task<bool> SaveChangesAsync()
         {

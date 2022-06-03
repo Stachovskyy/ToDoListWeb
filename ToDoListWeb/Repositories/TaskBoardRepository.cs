@@ -2,6 +2,7 @@
 using ToDoListWeb.Data.Entities;
 using ToDoListWeb.Entities;
 using ToDoListWeb.Exceptions;
+using ToDoListWeb.Models;
 
 namespace ToDoListWeb.Data.Repositories
 {
@@ -14,23 +15,21 @@ namespace ToDoListWeb.Data.Repositories
             _context = context;
         }
 
-        public async Task<List<TaskBoard>> GetAllTaskBoardsAsync(User user)
+        public async Task<List<TaskBoard>> GetTaskBoardsAssignedToUserAsync(User user)
         {
             var taskBoards = await _context.TaskBoards
                 .Include(t => t.UserList)
-                .Where(t => t.UserList
-                            .Contains(user) & t.IsDeleted != true)
-                            .ToListAsync();
+                .Where(t=>t.IsDeleted != true)
+                .ToListAsync();
 
             return taskBoards;
         }
 
-        public async Task<TaskBoard> GetSingleTaskBoardAsync(User user, int taskBoardId)
+        public async Task<TaskBoard> GetSingleTaskBoardAsync(int taskBoardId)
         {
             var taskBoards = await _context.TaskBoards.
                 Include(t => t.UserList)
-                .Where(t => t.UserList.
-                            Contains(user) & t.Id == taskBoardId & t.IsDeleted != true)
+                .Where(t=>t.Id == taskBoardId & t.IsDeleted != true)
                             .SingleOrDefaultAsync();
 
             return taskBoards;
@@ -57,7 +56,7 @@ namespace ToDoListWeb.Data.Repositories
 
         }
 
-        public async Task<TaskBoard> AddTaskBoardToAnotherUser(User user, TaskBoard taskBoard)
+        public async Task<TaskBoard> AssignUserToTaskBoard(User user, TaskBoard taskBoard)
         {
             taskBoard.UserList.Add(user);
 
@@ -80,10 +79,10 @@ namespace ToDoListWeb.Data.Repositories
 
         }
 
-        public async Task<TaskBoard> GetSingleTaskBoardAsync(int taskBoardId)
+        public async Task<TaskBoard> GetSingleTaskBoardAsync(User user,int taskBoardId)
         {
             var taskBoard = await _context.TaskBoards
-                .Where(t => t.Id == taskBoardId)
+                .Where(t => t.Id == taskBoardId & t.IsDeleted!=true)
                 .SingleOrDefaultAsync();
 
             return taskBoard;

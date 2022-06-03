@@ -11,6 +11,7 @@ using ToDoListWeb.Data.Entities;
 using ToDoListWeb.Entities;
 using ToDoListWeb.Models;
 using ToDoListWeb.Settings;
+using ToDoListWeb.StaticAndConstProp;
 
 namespace ToDoListWeb.Controllers
 {
@@ -35,8 +36,8 @@ namespace ToDoListWeb.Controllers
             _jwtSettings = jwtSettings.Value;
         }
 
-        [HttpPost("signup")]
-        public async Task<IActionResult> SignUp(UserSignUp userSignUp)
+        [HttpPost("Signup")]
+        public async Task<IActionResult> SignUp(UserSignUpModel userSignUp)
         {
             var user = _mapper.Map<User>(userSignUp);
 
@@ -44,14 +45,15 @@ namespace ToDoListWeb.Controllers
 
             if (userCreateResult.Succeeded)
             {
-                return Created(string.Empty, string.Empty);  //?
+                var userForRespone = _mapper.Map<UserApiResponse>(user);
+                return Created("user Created succesfuly", userForRespone);
             }
 
-            return Problem(userCreateResult.Errors.First().Description, null, 500); //?
+            return StatusCode(500, userCreateResult.Errors.First().Description);
         }
 
         [HttpPost("SignIn")]
-        public async Task<IActionResult> SignIn(UserLogin userLogin)
+        public async Task<IActionResult> SignIn(UserLoginModel userLogin)
         {
             var user = _userManager.Users.SingleOrDefault(u => u.UserName == userLogin.Email);
 
@@ -69,10 +71,9 @@ namespace ToDoListWeb.Controllers
             }
 
             return BadRequest("Email or password incorrect. ");
-
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RoleNames.AdminRole)]
         [HttpPost("Roles")]
         public async Task<IActionResult> CreateRole([FromBody] string roleName)
         {
@@ -90,28 +91,26 @@ namespace ToDoListWeb.Controllers
 
             if (roleResult.Succeeded)
             {
-                return Ok();
+                return NoContent();
             }
 
-            return Problem(roleResult.Errors.First().Description, null, 500); //?
-
+            return StatusCode(500, roleResult.Errors.First().Description);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RoleNames.AdminRole)]
         [HttpPost("AddUserToRole")]
         public async Task<IActionResult> AddUserToRole(AssignUserToRole userToRole)
         {
-            var user = _userManager.Users.SingleOrDefault(u => u.UserName == userToRole.userEmail);
+            var user = _userManager.Users.SingleOrDefault(u => u.UserName == userToRole.UserEmail);
 
-            var result = await _userManager.AddToRoleAsync(user, userToRole.roleName);
+            var result = await _userManager.AddToRoleAsync(user, userToRole.RoleName);
 
             if (result.Succeeded)
             {
-                return Ok();
+                return NoContent();
             }
 
-            return Problem(result.Errors.First().Description, null, 500);
-
+            return StatusCode(500, result.Errors.First().Description);
         }
         private string GenerateJwt(User user, IList<string> roles)
         {
@@ -142,7 +141,6 @@ namespace ToDoListWeb.Controllers
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
-
         }
     }
 }

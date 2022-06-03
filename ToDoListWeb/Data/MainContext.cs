@@ -2,10 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using ToDoListWeb.Data.Entities;
 using ToDoListWeb.Entities;
+using ToDoListWeb.Models;
 
 namespace ToDoListWeb.Data
 {
-    public class MainContext : IdentityDbContext<User, Role, Guid>           //Guid to Typ Id dla User i Role
+    public class MainContext : IdentityDbContext<User, Role, Guid> 
     {
         public DbSet<WorkTask> Tasks { get; set; }
         public DbSet<Status> Statuses { get; set; }
@@ -16,7 +17,7 @@ namespace ToDoListWeb.Data
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);  //
+            base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Status>()
                 .HasData(

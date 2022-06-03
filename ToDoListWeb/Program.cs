@@ -1,13 +1,14 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using ToDoListWeb.Entities;
-using ToDoListWeb.Data;
-using ToDoListWeb.Filters;
-using ToDoListWeb.Settings;
-using ToDoListWeb.Extensions;
 using Microsoft.OpenApi.Models;
+using ToDoListWeb.Data;
 using ToDoListWeb.Data.Repositories;
+using ToDoListWeb.Entities;
+using ToDoListWeb.Extensions;
+using ToDoListWeb.Filters;
+using ToDoListWeb.Models;
+using ToDoListWeb.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 

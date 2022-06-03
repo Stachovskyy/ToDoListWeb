@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ToDoListWeb.Data.Entities;
 using ToDoListWeb.Data.Repositories;
@@ -9,62 +10,68 @@ using ToDoListWeb.Models;
 
 namespace ToDoListWeb.Controllers
 {
+
     [ApiController]
     [Route("api/TaskBoards/{taskBoardId}/[controller]")]
+    [Authorize]
     public class TasksController : ControllerBase
     {
         private readonly ITaskRepository _taskRepository;
         private readonly IMapper _mapper;
         private readonly ITaskBoardRepository _taskBoardRepository;
+        private readonly UserManager<User> _userManager;
 
-        public TasksController(ITaskRepository taskRepository, IMapper mapper, ITaskBoardRepository taskBoardRepository)
+        public TasksController(ITaskRepository taskRepository, IMapper mapper, ITaskBoardRepository taskBoardRepository, UserManager<User> userManager)
         {
             _taskRepository = taskRepository;
             _mapper = mapper;
             _taskBoardRepository = taskBoardRepository;
+            _userManager = userManager;
         }
-
-        [Authorize]
+        
         [HttpGet]
-        public async Task<ActionResult<List<WorkTaskResponse>>> GetTasks(           //zeby skorzystac z metody musze przekazac token
+        public async Task<ActionResult<List<WorkTaskApiResponse>>> GetTasks(           
             int taskBoardId,
             [FromQuery] int? statusId = null,
             [FromQuery] int? priorityId = null,
             [FromQuery] int? take = null,
             [FromQuery] int? skip = null)
         {
-            await ValidateTaskBoard(taskBoardId);
+            await ValidateTaskBoard(taskBoardId);   // Musze dodać walidacje tutaj ! czy uzytkownik ma dostep do danego borda 
+
+            var loggedUser = User.Identity.Name;
+
+            var user = await _userManager.FindByNameAsync(loggedUser);
 
             var listOfTasks = await _taskRepository.GetTasks(statusId, priorityId, take, skip);
 
-            if (!listOfTasks.Any())
-                throw new NotFoundException("Could not find any tasks in this particualr taskboard");
-
-            return _mapper.Map<List<WorkTaskResponse>>(listOfTasks);
+            return _mapper.Map<List<WorkTaskApiResponse>>(listOfTasks);
         }
 
-        [Authorize]
         [HttpGet("{taskId:int}")]
-        public async Task<ActionResult<WorkTaskResponse>> GetSingleTask(
+        public async Task<ActionResult<WorkTaskApiResponse>> GetTask(
             int taskBoardId,
             int taskId)
         {
-            await ValidateTaskBoard(taskBoardId);
+            await ValidateTaskBoard(taskBoardId); //Tutaj tak samo sprawdzic 
 
             var task = await _taskRepository.GetSingleAsync(taskId);
 
             if (task == null)
+            {
                 throw new NotFoundException("Could not found Task");
-
+            }
             if (task.TaskBoardId != taskBoardId)
+            {
                 throw new NotFoundException("Could not found Task");
+            }
 
-            return _mapper.Map<WorkTaskResponse>(task);
+            return _mapper.Map<WorkTaskApiResponse>(task);
         }
-        [Authorize]
+        
         [HttpPost]
-        public async Task<ActionResult<WorkTaskResponse>> AddTask(
-            [FromBody] WorkTaskCreateModel model,
+        public async Task<ActionResult<WorkTaskApiResponse>> AddTask(
+            [FromBody] WorkTaskModel model,   
             [System.Web.Http.FromUri] int taskBoardId)
         {
             await ValidateTaskBoard(taskBoardId);
@@ -73,35 +80,37 @@ namespace ToDoListWeb.Controllers
 
             var createdTask = await _taskRepository.AddAsync(task);
 
-            var taskmodel = _mapper.Map<WorkTaskResponse>(createdTask);
+            var taskmodel = _mapper.Map<WorkTaskApiResponse>(createdTask);
 
             return StatusCode((int)HttpStatusCode.Created, taskmodel);
         }
-        [Authorize]
+        
         [HttpPut("{taskId:int}")]
-        public async Task<ActionResult<WorkTaskResponse>> Put(
+        public async Task<ActionResult<WorkTaskApiResponse>> UpdateTask(   
             [System.Web.Http.FromUri] int taskBoardId,
             int taskId,
-            WorkTaskCreateModel model)
+            WorkTaskModel model)
         {
             await ValidateTaskBoard(taskBoardId);
 
             var oldTask = await _taskRepository.GetSingleAsync(taskId);
             if (oldTask == null)
+            {
                 throw new NotFoundException("Could not found Task to update");
+            }
 
-            var updatedTask = _mapper.Map(model, oldTask);      //Mapuje
-
+            var updatedTask = _mapper.Map(model, oldTask);      
+           
             await _taskRepository.SaveChangesAsync();
 
-            var returnedTask = _mapper.Map<WorkTaskResponse>(updatedTask);
+            var returnedTask = _mapper.Map<WorkTaskApiResponse>(updatedTask);
 
             return returnedTask;
 
         }
-        [Authorize]
+       
         [HttpDelete("{Id:int}")]
-        public async Task<IActionResult> Delete(
+        public async Task<IActionResult> DeleteTask(
             [System.Web.Http.FromUri] int taskBoardId,
             int Id)
         {
@@ -110,9 +119,11 @@ namespace ToDoListWeb.Controllers
             var task = await _taskRepository.GetSingleAsync(Id);
 
             if (task == null)
+            {
                 return NotFound("Task does not exists");
+            }
 
-            await _taskRepository.Delete(Id);
+            await _taskRepository.SoftDelete(Id);
 
             return NoContent();
         }
@@ -122,7 +133,9 @@ namespace ToDoListWeb.Controllers
             var taskBoard = await _taskBoardRepository.GetSingleTaskBoardAsync(taskBoardId);
 
             if (taskBoard == null)
+            {
                 throw new NotFoundException("TaskBoard does not exists");
+            }
         }
     }
 }

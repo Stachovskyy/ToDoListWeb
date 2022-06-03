@@ -2,7 +2,7 @@
 
 namespace ToDoListWeb.Models
 {
-    public class WorkTaskCreateModel
+    public class WorkTaskModel
     {
         [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; }

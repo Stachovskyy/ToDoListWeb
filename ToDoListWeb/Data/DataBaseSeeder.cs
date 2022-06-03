@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using ToDoListWeb.Entities;
 using ToDoListWeb.Exceptions;
+using ToDoListWeb.Models;
 
 namespace ToDoListWeb.Data
 {
@@ -21,7 +17,7 @@ namespace ToDoListWeb.Data
                 };
 
                 var result = await roleManager.CreateAsync(role);
-                
+
                 if (!result.Succeeded)
                 {
                     throw new ServerErrorException($"Cannot create default role");
@@ -35,7 +31,7 @@ namespace ToDoListWeb.Data
                 User user = new User
                 {
                     FirstName = firstName,
-                    LastName= lastName,
+                    LastName = lastName,
                     Email = email,
                     UserName = email
                 };
@@ -51,7 +47,7 @@ namespace ToDoListWeb.Data
             }
         }
 
-       
+
     }
 }
 
