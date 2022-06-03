@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ToDoListWeb.Data.Entities;
 using ToDoListWeb.Data.Repositories;
@@ -10,7 +11,8 @@ namespace ToDoListWeb.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PrioritiesController : ControllerBase                    //zmienic delete nz deletesoft i zmienic put
+    [Authorize]
+    public class PrioritiesController : ControllerBase
     {
         private readonly IPriorityRepository _priorityRepository;
         private readonly IMapper _mapper;
@@ -23,81 +25,83 @@ namespace ToDoListWeb.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<PriorityModel>>> GetAll()
+        public async Task<ActionResult<List<PriorityApiResponse>>> GetAllPriorities()
         {
             var priorities = await _priorityRepository.GetPrioritiesAsync();
 
             if (priorities == null)
+            {
                 throw new NotFoundException("There is no priorities");
+            }
+            var prioritiesModel = _mapper.Map<List<PriorityApiResponse>>(priorities);
 
-            var prioritiesmodel = _mapper.Map<List<PriorityModel>>(priorities);
-
-            return prioritiesmodel;
-
+            return prioritiesModel;
         }
 
-        [HttpGet("{Id:int}")]
-        public async Task<ActionResult<PriorityModel>> GetSingle(int Id)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<PriorityApiResponse>> GetSinglePriority(int id)
         {
-            var priorities = await _priorityRepository.GetPriority(Id);
+            var priorities = await _priorityRepository.GetPriority(id);
 
             if (priorities == null)
-                throw new NotFoundException("There is no priorities");
+            {
+                throw new NotFoundException("There is no priority with this Id");
+            }
 
-            var prioritiesmodel = _mapper.Map<PriorityModel>(priorities);
+            var prioritiesModel = _mapper.Map<PriorityApiResponse>(priorities);
 
-            return prioritiesmodel;
-
+            return prioritiesModel;
         }
 
         [HttpPost]
-        public async Task<ActionResult<PriorityModel>> CreatePriority(
-            PriorityModel priority)
+        public async Task<ActionResult<PriorityModel>> CreatePriority(PriorityModel priority)
         {
-            var existingpriority = await _priorityRepository.GetPriorityByName(priority.Name);
+            var existingPriority = await _priorityRepository.GetPriorityByName(priority.Name);
 
-            if (existingpriority != null)
+            if (existingPriority != null)
+            {
                 return BadRequest("Priority with that name already exists");
+            }
 
             Priority mappedModel = _mapper.Map<Priority>(priority);
 
             var createdPriority = await _priorityRepository.AddPriority(mappedModel);
 
-            var returnedModel = _mapper.Map<PriorityModel>(createdPriority);
+            var returnedModel = _mapper.Map<PriorityApiResponse>(createdPriority);
 
             return StatusCode((int)HttpStatusCode.Created, returnedModel);
-
         }
 
-        [HttpPut("{Id:int}")]
-        public async Task<ActionResult<PriorityModel>> Update(
-            int Id,
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<PriorityApiResponse>> UpdatePriority(
+            int id,
             PriorityModel model)
         {
-
-            var oldPriority = await _priorityRepository.GetPriority(Id);
+            var oldPriority = await _priorityRepository.GetPriority(id);
 
             if (oldPriority == null)
+            {
                 throw new NotFoundException("There is no priority to update");
+            }
 
             _mapper.Map(model, oldPriority);
 
             await _priorityRepository.SaveChangesAsync();
 
-            return _mapper.Map<PriorityModel>(oldPriority);
-
+            return _mapper.Map<PriorityApiResponse>(oldPriority);
         }
 
-        [HttpDelete("{Id:int}")]
-        public async Task<IActionResult> DeletePriority(int Id)
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeletePriority(int id)
         {
-            if (await _priorityRepository.GetPriority(Id) == null)
+            if (await _priorityRepository.GetPriority(id) == null)
+            {
                 throw new NotFoundException("There is no prority to delete");
+            }
 
-            await _priorityRepository.SoftDelete(Id);
+            await _priorityRepository.SoftDelete(id);
 
             return NoContent();
-
         }
     }
 }

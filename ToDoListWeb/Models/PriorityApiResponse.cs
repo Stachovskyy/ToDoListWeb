@@ -2,10 +2,9 @@
 
 namespace ToDoListWeb.Models
 {
-    public class TaskBoardModelWithoutList
+    public class PriorityApiResponse
     {
-     
-        [Required(ErrorMessage = ("Taskboard name is required"))]
         public string Name { get; set; }
+        public int id { get; set; }
     }
 }

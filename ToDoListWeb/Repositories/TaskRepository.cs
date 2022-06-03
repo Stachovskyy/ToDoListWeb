@@ -35,7 +35,7 @@ namespace ToDoListWeb.Data
             return task;
         }
 
-        public async Task Delete(int taskId)
+        public async Task SoftDelete(int taskId)
         {
             var taskToDelete = await GetSingleAsync(taskId);
 
@@ -62,7 +62,7 @@ namespace ToDoListWeb.Data
                 tasks = tasks.Where(s => s.PriorityId == priorityId);
             }
 
-            tasks=tasks.OrderBy(c => c.Id);
+            tasks = tasks.OrderBy(c => c.Id);
 
             if (skip != null)
             {

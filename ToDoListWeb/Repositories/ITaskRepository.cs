@@ -6,8 +6,8 @@ namespace ToDoListWeb.Data.Repositories
     {
         Task<WorkTask> AddAsync(WorkTask workTask);
         Task<WorkTask> GetSingleAsync(int Id);
-        Task Delete(int taskId);
-        Task<List<WorkTask>> GetTasks(int? statusId, int? priorityId,int? take = null, int? skip = null);
+        Task SoftDelete(int taskId);
+        Task<List<WorkTask>> GetTasks(int? statusId, int? priorityId, int? take = null, int? skip = null);
         Task<bool> SaveChangesAsync();
     }
 }

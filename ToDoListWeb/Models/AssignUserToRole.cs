@@ -8,7 +8,7 @@ namespace ToDoListWeb.Models
 {
     public class AssignUserToRole
     {
-        public string userEmail { get; set; }
-        public string roleName { get; set; }
+        public string UserEmail { get; set; }
+        public string RoleName { get; set; }
     }
 }
