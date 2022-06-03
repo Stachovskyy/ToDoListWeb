@@ -46,7 +46,6 @@ namespace ToDoListWeb.Data.Repositories
             var newtaskBoard = await GetSingleTaskBoardAsync(addedTaskBoard.Entity.Id);
 
             newtaskBoard.UserList.Add(user);
-            throw new Exception();
 
             await _context.SaveChangesAsync();
 
